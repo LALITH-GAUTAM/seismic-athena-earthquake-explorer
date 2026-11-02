@@ -2,6 +2,14 @@
 
 A focused Athena AI agent with a real MCP server and an embedded, interactive earthquake explorer. Live data comes from the public USGS M2.5+ GeoJSON feeds. No API key or runtime package installation is required.
 
+## Live submission
+
+- Athena agent: https://athenachat.bot/chatbot/agent/seismic-earthquake-explorer5473
+- Hosted MCP endpoint: https://seismic-earthquake-explorer-lalith.lalithgautam.chatgpt.site/api/mcp
+- Standalone preview: https://seismic-earthquake-explorer-lalith.lalithgautam.chatgpt.site/
+
+The production endpoint runs as a self-contained Cloudflare Worker through Sites. It is public, read-only and requires no API key. `/api/mcp` avoids the hosting platform's reserved `/mcp` authentication route.
+
 ## Run
 
 Requires Python 3.10+.
@@ -85,4 +93,14 @@ python verify_mcp.py http://localhost:8787/mcp
 ```
 
 The check validates discovery, tool execution with actual USGS data, filtering invariants, resource metadata, and an invalid-input failure. Browser verification covers filters, sorting, time-range refresh, selection and embedded Athena rendering.
+
+## Hosted Worker build
+
+```sh
+python build_worker.py
+```
+
+This creates `worker/index.js`, a self-contained Worker ESM module exporting `fetch`. The shared HTML and MCP tool definition are embedded at build time; `worker/logic.js` implements the same retrieval and JSON-RPC contract for a Worker runtime. It supports both `/api/mcp` and `/mcp` (the production host reserves `/mcp` for its own authenticated plugin). The generated Worker contains no credentials.
+
+Widget state saves are deduplicated, and unchanged `openai:set_globals` data is ignored to prevent render feedback loops in Athena.
 
